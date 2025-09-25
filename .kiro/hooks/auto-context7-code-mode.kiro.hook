@@ -1,0 +1,62 @@
+{
+  "enabled": true,
+  "name": "Auto Context7 Code Mode Integration",
+  "description": "Automatically queries Context7 for relevant technical documentation when entering code mode",
+  "version": "1",
+  "when": {
+    "type": "modeChanged",
+    "targetMode": "code"
+  },
+  "then": [
+    {
+      "type": "useMcpTool",
+      "serverName": "context7",
+      "toolName": "get-library-docs",
+      "parameters": {
+        "context7CompatibleLibraryID": "/neondatabase/serverless",
+        "topic": "connection pooling and error handling",
+        "tokens": 2000
+      }
+    },
+    {
+      "type": "useMcpTool",
+      "serverName": "context7",
+      "toolName": "get-library-docs",
+      "parameters": {
+        "context7CompatibleLibraryID": "/electron/electron",
+        "topic": "ipc communication and security",
+        "tokens": 2000
+      }
+    },
+    {
+      "type": "useMcpTool",
+      "serverName": "context7",
+      "toolName": "get-library-docs",
+      "parameters": {
+        "context7CompatibleLibraryID": "/puppeteer/puppeteer",
+        "topic": "web scraping and spa handling",
+        "tokens": 2000
+      }
+    },
+    {
+      "type": "useMcpTool",
+      "serverName": "context7",
+      "toolName": "get-library-docs",
+      "parameters": {
+        "context7CompatibleLibraryID": "/winstonjs/winston",
+        "topic": "logging configuration and best practices",
+        "tokens": 2000
+      }
+    },
+    {
+      "type": "useMcpTool",
+      "serverName": "context7",
+      "toolName": "get-library-docs",
+      "parameters": {
+        "context7CompatibleLibraryID": "/jestjs/jest",
+        "topic": "testing patterns and mocking",
+        "tokens": 2000
+      }
+    }
+  ]
+}

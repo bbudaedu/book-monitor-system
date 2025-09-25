@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "Design Sync Task Confirmation",
+  "description": "Monitors design-related files for changes and triggers task synchronization and confirmation processes",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/renderer/**/*.tsx",
+      "src/renderer/**/*.css",
+      "src/renderer/**/*.scss",
+      "src/interfaces/**/*.ts",
+      "src/types/**/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Design files have been modified. Please review the changes and confirm if any related tasks need to be synchronized or updated. Check for UI component changes, interface modifications, or type definitions that may affect existing tasks or require new task creation."
+  }
+}

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>書籍監控系統</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 側邊導航欄 -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>書籍監控系統</h2>
+                <div class="status-indicator" id="statusIndicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">已停止</span>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">監控面板</span>
+                </li>
+                <li class="nav-item" data-page="books">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-text">書籍列表</span>
+                </li>
+                <li class="nav-item" data-page="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">系統設定</span>
+                </li>
+                <li class="nav-item" data-page="logs">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-text">系統日誌</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- 主要內容區域 -->
+        <main class="main-content">
+            <!-- 監控面板頁面 -->
+            <div class="page active" id="dashboard-page">
+                <div class="page-header">
+                    <h1>監控面板</h1>
+                    <div class="control-buttons">
+                        <button id="startBtn" class="btn btn-primary">開始監控</button>
+                        <button id="stopBtn" class="btn btn-secondary" disabled>停止監控</button>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📖</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="totalBooks">0</div>
+                            <div class="stat-label">總書籍數</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🆕</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="newBooksToday">0</div>
+                            <div class="stat-label">今日新書</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-content">
+                            <div class="stat-text" id="lastCheck">從未檢查</div>
+                            <div class="stat-label">最後檢查</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📥</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="downloadCount">0</div>
+                            <div class="stat-label">下載中</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-books-section">
+                    <h2>最近檢測到的書籍</h2>
+                    <div class="books-list" id="recentBooksList">
+                        <div class="empty-state">
+                            <p>尚未檢測到任何書籍</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 書籍列表頁面 -->
+            <div class="page" id="books-page">
+                <div class="page-header">
+                    <h1>書籍列表</h1>
+                    <div class="search-box">
+                        <input type="text" id="bookSearch" placeholder="搜尋書籍...">
+                    </div>
+                </div>
+                <div class="books-grid" id="booksGrid">
+                    <!-- 書籍項目將動態載入 -->
+                </div>
+            </div>
+
+            <!-- 系統設定頁面 -->
+            <div class="page" id="settings-page">
+                <div class="page-header">
+                    <h1>系統設定</h1>
+                    <div class="settings-actions">
+                        <button id="saveSettingsBtn" class="btn btn-primary">儲存設定</button>
+                        <button id="resetSettingsBtn" class="btn btn-secondary">重設為預設值</button>
+                    </div>
+                </div>
+                
+                <div class="settings-content">
+                    <form id="settingsForm" class="settings-form">
+                        <!-- 監控設定 -->
+                        <div class="settings-section">
+                            <h2>監控設定</h2>
+                            
+                            <div class="form-group">
+                                <label for="monitorInterval">監控間隔（分鐘）</label>
+                                <input type="number" id="monitorInterval" name="monitorInterval" 
+                                       min="5" max="1440" value="30" required>
+                                <div class="form-help">設定系統檢查新書的時間間隔，最少5分鐘</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="autoStart">
+                                    <input type="checkbox" id="autoStart" name="autoStart">
+                                    應用程式啟動時自動開始監控
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 下載設定 -->
+                        <div class="settings-section">
+                            <h2>下載設定</h2>
+                            
+                            <div class="form-group">
+                                <label for="downloadPath">下載路徑</label>
+                                <div class="path-input-group">
+                                    <input type="text" id="downloadPath" name="downloadPath" 
+                                           placeholder="選擇下載資料夾..." readonly required>
+                                    <button type="button" id="selectPathBtn" class="btn btn-secondary">瀏覽</button>
+                                </div>
+                                <div class="form-help">PDF檔案將儲存到此資料夾</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="maxRetries">最大重試次數</label>
+                                <input type="number" id="maxRetries" name="maxRetries" 
+                                       min="1" max="10" value="3" required>
+                                <div class="form-help">下載失敗時的重試次數</div>
+                            </div>
+                        </div>
+
+                        <!-- LINE 通知設定 -->
+                        <div class="settings-section">
+                            <h2>LINE 通知設定</h2>
+                            
+                            <div class="form-group">
+                                <label for="lineAccessToken">LINE Channel Access Token</label>
+                                <input type="password" id="lineAccessToken" name="lineAccessToken" 
+                                       placeholder="輸入您的 LINE Channel Access Token">
+                                <div class="form-help">
+                                    <a href="#" id="lineTokenHelp">如何取得 LINE Access Token？</a>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lineUserId">LINE 使用者 ID</label>
+                                <input type="text" id="lineUserId" name="lineUserId" 
+                                       placeholder="輸入接收通知的 LINE 使用者 ID">
+                                <div class="form-help">
+                                    <button type="button" id="testLineBtn" class="btn btn-secondary btn-small">測試連接</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 日誌設定 -->
+                        <div class="settings-section">
+                            <h2>日誌設定</h2>
+                            
+                            <div class="form-group">
+                                <label for="logLevel">日誌等級</label>
+                                <select id="logLevel" name="logLevel" required>
+                                    <option value="debug">除錯 (Debug)</option>
+                                    <option value="info" selected>資訊 (Info)</option>
+                                    <option value="warn">警告 (Warning)</option>
+                                    <option value="error">錯誤 (Error)</option>
+                                </select>
+                                <div class="form-help">較低等級會記錄更多詳細資訊</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- LINE Token 說明對話框 -->
+                <div class="modal" id="lineTokenModal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>如何取得 LINE Channel Access Token</h3>
+                            <button type="button" class="modal-close" id="closeLineTokenModal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <ol>
+                                <li>前往 <a href="https://developers.line.biz/" target="_blank">LINE Developers</a> 網站</li>
+                                <li>登入您的 LINE 帳號</li>
+                                <li>建立新的 Provider 或選擇現有的 Provider</li>
+                                <li>建立新的 Messaging API Channel</li>
+                                <li>在 Channel 設定中找到 "Channel access token"</li>
+                                <li>點擊 "Issue" 按鈕產生 Token</li>
+                                <li>複製 Token 並貼到上方的輸入框中</li>
+                            </ol>
+                            <p><strong>注意：</strong>請妥善保管您的 Access Token，不要分享給他人。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系統日誌頁面 -->
+            <div class="page" id="logs-page">
+                <div class="page-header">
+                    <h1>系統日誌</h1>
+                    <div class="log-controls">
+                        <input type="text" id="logSearch" placeholder="搜尋日誌內容...">
+                        <select id="logLevelFilter">
+                            <option value="">所有等級</option>
+                            <option value="error">錯誤</option>
+                            <option value="warn">警告</option>
+                            <option value="info">資訊</option>
+                            <option value="debug">除錯</option>
+                        </select>
+                        <button id="clearLogsBtn" class="btn btn-secondary">清除日誌</button>
+                        <button id="exportLogsBtn" class="btn btn-secondary">匯出日誌</button>
+                    </div>
+                </div>
+                <div class="logs-container" id="logsContainer">
+                    <!-- 日誌項目將在後續任務中實作 -->
+                    <div class="placeholder">日誌檢視功能將在任務 8.4 中實作</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 載入提示 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">載入中...</div>
+    </div>
+
+    <!-- 通知容器 -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

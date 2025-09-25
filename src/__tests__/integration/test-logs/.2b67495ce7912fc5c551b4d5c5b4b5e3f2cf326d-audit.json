@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 14
+    },
+    "auditLog": "D:\\AI studio\\claw\\src\\__tests__\\integration\\test-logs\\.2b67495ce7912fc5c551b4d5c5b4b5e3f2cf326d-audit.json",
+    "files": [
+        {
+            "date": 1758707576532,
+            "name": "D:\\AI studio\\claw\\src\\__tests__\\integration\\test-logs\\exceptions-2025-09-24.log",
+            "hash": "4aaa9b6c6f964ceb96705fa9a4efc037df48676e295d5fbe48066e5db366cd17"
+        }
+    ],
+    "hashType": "sha256"
+}

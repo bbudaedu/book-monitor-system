@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Sync Design Requirements",
+  "description": "Monitors requirement changes and ensures design synchronization and confirmation",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "README.md",
+      "package.json"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A requirement change has been detected in the codebase. Please review the changes and confirm that the design specifications are synchronized with these new requirements. Analyze the modified files to identify any design implications and suggest necessary design updates or confirmations needed."
+  }
+}
