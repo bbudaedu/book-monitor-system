@@ -492,39 +492,6 @@ export class Logger {
   /**
    * 檢查日誌器是否健康
    */
-  /**
-   * 查詢最近的日誌
-   */
-  async queryRecentLogs(options: { limit?: number; level?: string } = {}): Promise<any[]> {
-    const { limit = 100, level } = options;
-
-    try {
-      const files = fs.readdirSync(this.config.logDir)
-        .filter(file => file.startsWith('app-') && file.endsWith('.log'))
-        .sort((a, b) => b.localeCompare(a)); // 降序排序，最新的檔案在最前面
-
-      if (files.length === 0) {
-        return [];
-      }
-
-      const latestLogFile = path.join(this.config.logDir, files[0]);
-      const fileContent = fs.readFileSync(latestLogFile, 'utf-8');
-      const lines = fileContent.split('\n').filter(line => line.trim() !== '');
-
-      let logs = lines.map(line => JSON.parse(line));
-
-      if (level) {
-        logs = logs.filter(log => log.level === level);
-      }
-
-      return logs.slice(-limit); // 返回最新的日誌
-
-    } catch (error) {
-      this.error('查詢日誌失敗', error);
-      return [];
-    }
-  }
-
   healthCheck(): { status: 'healthy' | 'unhealthy'; details: any } {
     try {
       // 檢查日誌目錄是否可寫
