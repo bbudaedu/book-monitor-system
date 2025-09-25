@@ -258,10 +258,10 @@ export class WebScraper {
   async takeScreenshot(url: string, outputPath: string): Promise<boolean> {
     try {
       const result = await this.scrape(url, async (page) => {
+        const finalPath = (outputPath.endsWith('.png') ? outputPath : `${outputPath}.png`) as `${string}.png`;
         await page.screenshot({ 
-          path: outputPath, 
+          path: finalPath,
           fullPage: true,
-          type: 'png'
         });
         return true;
       });
