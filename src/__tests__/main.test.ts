@@ -9,7 +9,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 // 模擬 Electron
 jest.mock('electron', () => ({
   app: {
-    whenReady: jest.fn(),
+    whenReady: jest.fn().mockResolvedValue(undefined),
     on: jest.fn(),
     quit: jest.fn(),
     getPath: jest.fn().mockReturnValue('/mock/path'),
@@ -26,6 +26,7 @@ jest.mock('electron', () => ({
       send: jest.fn()
     },
     on: jest.fn(),
+    once: jest.fn(),
     show: jest.fn(),
     hide: jest.fn(),
     close: jest.fn(),
@@ -50,11 +51,24 @@ jest.mock('electron', () => ({
 // 模擬 path
 jest.mock('path', () => ({
   join: jest.fn((...args) => args.join('/')),
-  resolve: jest.fn((...args) => args.join('/'))
+  resolve: jest.fn((...args) => args.join('/')),
+  dirname: jest.fn((p) => (p ? String(p).substring(0, String(p).lastIndexOf('/')) : '')),
+  basename: jest.fn((p) => (p ? String(p).substring(String(p).lastIndexOf('/') + 1) : '')),
+  relative: jest.fn(() => '../'),
 }));
 
 // 模擬主控制器
-jest.mock('../controllers/MainController');
+jest.mock('../controllers/MainController', () => ({
+  MainController: jest.fn().mockImplementation(() => ({
+    initialize: jest.fn().mockResolvedValue(undefined),
+    startMonitoring: jest.fn(),
+    stopMonitoring: jest.fn(),
+    getStatus: jest.fn(),
+    updateConfig: jest.fn(),
+    runManualCheck: jest.fn(),
+    on: jest.fn(),
+  })),
+}));
 jest.mock('../database/DatabaseManager');
 
 describe('Main Process', () => {
@@ -77,6 +91,7 @@ describe('Main Process', () => {
         send: jest.fn()
       },
       on: jest.fn(),
+    once: jest.fn(),
       show: jest.fn(),
       hide: jest.fn(),
       close: jest.fn(),

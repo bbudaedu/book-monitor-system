@@ -11,7 +11,7 @@ const { Logger } = require('./services/Logger');
 // 處理應用程式生命週期和主視窗管理
 
 // 導出主程序函數供測試使用
-export { createWindow, initializeMainController, setupIpcHandlers, setupMainControllerEvents };
+module.exports = { createWindow, initializeMainController, setupIpcHandlers, setupMainControllerEvents };
 
 function createWindow(): Electron.BrowserWindow {
   // 建立瀏覽器視窗

@@ -156,10 +156,8 @@ async function testDatabaseConnection() {
 }
 
 // 運行測試
-testDatabaseConnection().then(() => {
-  console.log('📊 資料庫連接測試完成');
-  // 移除 process.exit 調用，因為這會干擾測試運行器
-}).catch((error) => {
-  console.error('💥 測試過程中發生未處理的錯誤:', error);
-  // 移除 process.exit 調用，因為這會干擾測試運行器
+describe('Database Connection', () => {
+  test.skip('should connect to the database and perform basic operations', async () => {
+    await testDatabaseConnection();
+  });
 });

@@ -3,12 +3,12 @@
         "days": false,
         "amount": 14
     },
-    "auditLog": "D:\\AI studio\\claw\\src\\__tests__\\integration\\test-logs\\audit.json",
+    "auditLog": "/app/src/__tests__/integration/test-logs/audit.json",
     "files": [
         {
-            "date": 1758707576528,
-            "name": "D:\\AI studio\\claw\\src\\__tests__\\integration\\test-logs\\app-2025-09-24.log",
-            "hash": "018681d9206eac917025139caeb57d5eade386cce69c1d7e0f0bb49f789f407c"
+            "date": 1758765802655,
+            "name": "/app/src/__tests__/integration/test-logs/app-2025-09-25.log",
+            "hash": "71781e6e7205d4c51f0cff2ff17b79cd55f456eeeb5cb5bd6d2b7488ace90c59"
         }
     ],
     "hashType": "sha256"
