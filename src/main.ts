@@ -1,3 +1,4 @@
+export {};
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 
@@ -441,9 +442,11 @@ function setupIpcHandlers(): void {
       if (!mainController) {
         throw new Error('MainController 尚未初始化');
       }
-      // 這個方法需要在 MainController 中實作
-      // await mainController.downloadBook(bookId);
-      console.log(`下載書籍請求: ${bookId}`);
+      const id = parseInt(bookId, 10);
+      if (isNaN(id)) {
+        throw new Error('無效的書籍 ID');
+      }
+      await mainController.downloadBookById(id);
       return true;
     } catch (error) {
       console.error('下載書籍失敗:', error);
@@ -503,74 +506,23 @@ function setupIpcHandlers(): void {
   // 日誌管理
   ipcMain.handle('logs:get', async (event, options: any) => {
     try {
-      console.log('取得日誌:', options);
-      
-      // 建立模擬日誌資料用於測試
-      const mockLogs = [
-        {
-          id: 1,
-          level: 'info',
-          message: '系統啟動成功',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          metadata: { component: 'MainController', version: '1.0.0' }
-        },
-        {
-          id: 2,
-          level: 'warn',
-          message: '資料庫連接失敗，系統將以離線模式運行',
-          timestamp: new Date(Date.now() - 3000000).toISOString(),
-          metadata: { component: 'DatabaseManager', error: 'Connection timeout' }
-        },
-        {
-          id: 3,
-          level: 'info',
-          message: '使用者介面已載入',
-          timestamp: new Date(Date.now() - 2400000).toISOString(),
-          metadata: { component: 'Renderer', page: 'dashboard' }
-        },
-        {
-          id: 4,
-          level: 'error',
-          message: '無法連接到目標網站',
-          timestamp: new Date(Date.now() - 1800000).toISOString(),
-          metadata: { component: 'WebScraper', url: 'https://www.budaedu.org', error: 'Network timeout' }
-        },
-        {
-          id: 5,
-          level: 'debug',
-          message: '開始解析網頁內容',
-          timestamp: new Date(Date.now() - 1200000).toISOString(),
-          metadata: { component: 'BookParser', strategy: 'strategy1' }
-        },
-        {
-          id: 6,
-          level: 'info',
-          message: '檢測到 3 本新書',
-          timestamp: new Date(Date.now() - 600000).toISOString(),
-          metadata: { component: 'BookDetector', newBooks: 3, totalBooks: 15 }
-        }
-      ];
-
-      // 根據選項篩選日誌
-      let filteredLogs = [...mockLogs];
-
-      if (options?.level) {
-        filteredLogs = filteredLogs.filter(log => log.level === options.level);
+      if (!mainController) {
+        console.warn('MainController 尚未初始化，無法取得日誌');
+        return [];
       }
+      const logger = mainController.getLogger();
+      const logs = await logger.queryRecentLogs(options);
 
+      // 根據 search 關鍵字進行額外篩選
       if (options?.search) {
         const searchTerm = options.search.toLowerCase();
-        filteredLogs = filteredLogs.filter(log => 
-          log.message.toLowerCase().includes(searchTerm) ||
-          JSON.stringify(log.metadata).toLowerCase().includes(searchTerm)
+        return logs.filter(log =>
+          (log.message && log.message.toLowerCase().includes(searchTerm)) ||
+          (log.metadata && JSON.stringify(log.metadata).toLowerCase().includes(searchTerm))
         );
       }
 
-      // 限制返回數量
-      const limit = options?.limit || 100;
-      filteredLogs = filteredLogs.slice(0, limit);
-
-      return filteredLogs;
+      return logs;
     } catch (error) {
       console.error('取得日誌失敗:', error);
       return [];

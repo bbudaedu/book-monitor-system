@@ -136,7 +136,7 @@ export class BookParser {
       ]);
 
       // 額外等待動態內容載入
-      await page.waitForTimeout(3000);
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
     } catch (error) {
       this.logger.warn('Content wait timeout, proceeding with parsing', error as Error);

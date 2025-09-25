@@ -191,14 +191,16 @@ export class DatabaseManager {
       console.error('執行查詢時發生錯誤:', error);
 
       // 在離線模式下不拋出錯誤
-      if (this.status === ConnectionStatus.DISCONNECTED) {
-        console.log('🔌 離線模式：忽略查詢錯誤');
-        return {
-          rows: [],
-          rowCount: 0,
-          command: 'SELECT'
-        };
-      }
+      // This check is redundant because the disconnected status is handled at the beginning of the function.
+      // The compiler correctly identifies this as unreachable code.
+      // if (this.status === ConnectionStatus.DISCONNECTED) {
+      //   console.log('🔌 離線模式：忽略查詢錯誤');
+      //   return {
+      //     rows: [],
+      //     rowCount: 0,
+      //     command: 'SELECT'
+      //   };
+      // }
 
       throw error;
     }

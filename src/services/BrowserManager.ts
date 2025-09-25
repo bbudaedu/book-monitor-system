@@ -1,4 +1,4 @@
-import puppeteer, { Browser, Page, PuppeteerLaunchOptions } from 'puppeteer';
+import puppeteer, { Browser, Page, LaunchOptions as PuppeteerLaunchOptions } from 'puppeteer';
 import { Logger } from './Logger';
 
 export interface BrowserManagerConfig {
@@ -273,7 +273,7 @@ export class BrowserManager {
 
     page.on('console', (message) => {
       const type = message.type();
-      if (type === 'error' || type === 'warning') {
+      if (type === 'error' || type === 'warn') {
         this.logger.debug(`Browser console ${type}`, {
           text: message.text(),
           location: message.location()

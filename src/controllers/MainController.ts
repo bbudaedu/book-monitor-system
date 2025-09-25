@@ -388,6 +388,36 @@ export class MainController extends EventEmitter {
     this.logger.info('錯誤統計已重置', { component: 'MainController' });
   }
 
+  /**
+   * 取得 Logger 實例
+   */
+  getLogger(): Logger {
+    return this.logger;
+  }
+
+  /**
+   * 根據ID下載單一書籍
+   */
+  async downloadBookById(bookId: number): Promise<void> {
+    this.logger.info(`開始手動下載書籍 ID: ${bookId}`, { component: 'MainController' });
+    try {
+      const result = await this.dbManager.query('SELECT * FROM books WHERE id = $1', [bookId]);
+      if (result.rows.length === 0) {
+        throw new Error(`找不到 ID 為 ${bookId} 的書籍`);
+      }
+      const bookToDownload = result.rows[0] as BookInfo;
+
+      // 觸發下載
+      await this.pdfDownloader.downloadPDF(bookToDownload);
+      this.logger.info(`已成功觸發書籍 ID: ${bookId} 的下載`, { component: 'MainController' });
+
+    } catch (error) {
+      this.logger.error(`手動下載書籍 ID: ${bookId} 失敗`, error, { component: 'MainController' });
+      this.emit('error', error as Error);
+      throw error;
+    }
+  }
+
 
 
   /**
