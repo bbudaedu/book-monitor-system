@@ -2,18 +2,42 @@
 import asyncio
 import aiohttp
 import pandas as pd
+import re
+
+async def fetch_efiles(session, book_id):
+    """Fetches all efile URLs for a given book ID."""
+    if not book_id:
+        return ""
+
+    efiles_url = f"https://publish.budaedu.org/dharma/public/api/books/{book_id}/efiles"
+    try:
+        async with session.get(efiles_url, ssl=False, timeout=30) as response:
+            if response.status == 200:
+                data = await response.json()
+                pdf_urls = [
+                    efile.get("url")
+                    for efile in data.get("data", [])
+                    if efile.get("url") and re.search(r'\.pdf$', efile.get("url"), re.IGNORECASE)
+                ]
+                return "; ".join(sorted(pdf_urls)) if pdf_urls else ""
+            else:
+                return ""
+    except Exception as e:
+        print(f"  - 獲取 book ID {book_id} 的 efile 時發生錯誤: {e}")
+        return ""
 
 async def fetch_page(session, page):
-    """Fetches a single page of book data from the API with retry logic."""
-    url = f"https://publish.budaedu.org/dharma/public/api/books"
+    """Fetches a single page of CHINESE book data from the API with retry logic."""
+    # Corrected URL to filter for Chinese books directly in the path
+    url = f"https://publish.budaedu.org/dharma/public/api/books/chinese"
     params = {
-        "per_page": 100,  # Fetch 100 items per page for even better efficiency
+        "per_page": 50,
         "page": page,
         "order": "code,asc"
     }
 
     for attempt in range(3):
-        print(f"正在獲取第 {page} 頁的書籍列表... (嘗試 {attempt + 1}/3)")
+        print(f"正在獲取第 {page} 頁的中文書籍列表... (嘗試 {attempt + 1}/3)")
         try:
             async with session.get(url, params=params, ssl=False, timeout=60) as response:
                 if response.status == 200:
@@ -32,7 +56,7 @@ async def fetch_page(session, page):
     return None
 
 async def main():
-    """Main function to crawl all book data and save to Excel."""
+    """Main function to crawl all CHINESE book data and save to Excel."""
     all_books = []
     current_page = 1
 
@@ -48,23 +72,24 @@ async def main():
                 print("找不到更多書籍資料，爬取結束。")
                 break
 
-            for book in books_on_page:
-                book_code = book.get("code")
-                # Construct the PDF URL directly based on the discovered pattern
-                pdf_url = f"https://www2.budaedu.org/dharma-data/book-efile/{book_code}-01-001.PDF" if book_code else ""
+            tasks = [fetch_efiles(session, book.get("id")) for book in books_on_page]
 
+            print(f"正在為第 {current_page} 頁的 {len(books_on_page)} 本書並行獲取 PDF 連結...")
+            efile_results = await asyncio.gather(*tasks)
+
+            for book, pdf_links in zip(books_on_page, efile_results):
                 all_books.append({
-                    "編號": book_code,
+                    "編號": book.get("code"),
                     "書名": book.get("chinese_name"),
                     "作者": book.get("chinese_author"),
                     "簡介": book.get("chinese_intro"),
                     "上傳時間": book.get("created_at"),
-                    "PDF下載連結": pdf_url
+                    "PDF下載連結": pdf_links
                 })
 
             print(f"成功處理 {len(books_on_page)} 本書。目前總數: {len(all_books)}")
             current_page += 1
-            await asyncio.sleep(0.2) # A shorter sleep is fine as we are making fewer requests
+            await asyncio.sleep(1)
 
     if all_books:
         print("\n正在將資料寫入 Excel 檔案...")
